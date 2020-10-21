@@ -1,0 +1,70 @@
+"""This program determines the smallest possible number such that
+the infile contains 50 successful selections of digits from it
+(where selections are assumed to be in order)"""
+
+infile = ".\keylog.txt"
+
+from time import time
+
+def main():
+    f = open(infile, 'r')
+    l = []
+    for x in f:
+        l.append(x.strip())
+    f.close
+
+    chars = set()
+    for x in l:
+        for c in x:
+            chars.add(c)
+    print(sorted(chars))
+
+    orderpairs = set()
+    for x in l:
+        orderpairs.add(x[0] + x[1])
+        orderpairs.add(x[1] + x[2])
+
+    print(sorted(orderpairs))
+
+    for p in orderpairs:
+        if reversed(p) in orderpairs:
+            print("ERROR: Can't handle cases where multiple instances are needed, terminating")
+            return()
+
+    s = ""
+    while len(chars) != 0:
+        firsts = findfirsts(chars,orderpairs)
+        if len(firsts) != 1:
+            print("ERROR: recursion required")
+            print(chars, firsts)
+            return()
+        f = firsts[0]
+        s += f
+        chars.remove(f)
+        neworderpairs = []
+        for p in orderpairs:
+            if f not in p:
+                neworderpairs.append(p)
+        orderpairs = neworderpairs
+        print(orderpairs)
+
+    print(s)
+
+def findfirsts(chars,orderpairs):
+    """Returns a sorted list of options from chars that only appear as the first element
+    in any pair in orderpairs"""
+    firsts = set()
+    for c in chars:
+        inc = True
+        for p in orderpairs:
+            if c == p[1]:
+                inc = False
+                break
+        if inc:
+            firsts.add(c)
+    return(sorted(firsts))
+
+if __name__ == '__main__':
+    starttime = time()
+    main()
+    print("Completed in", time() - starttime, "seconds")
